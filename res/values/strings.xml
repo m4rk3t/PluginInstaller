@@ -1,0 +1,9 @@
+<resources>
+
+    <string name="app_name">Codecs for Archos Video</string>
+    <string name="title_activity_installer">All Codecs for Archos Video</string>
+    <string name="installation_done">Copy finished, codecs installed.</string>
+    <string name="installation_progress">Installation...</string>
+    <string name="installation_error">Installation failed.</string>
+
+</resources>
