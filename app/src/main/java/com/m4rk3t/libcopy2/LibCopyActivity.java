@@ -1,7 +1,9 @@
 package com.m4rk3t.libcopy2;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.os.Build;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class LibCopyActivity extends Activity {
 
@@ -27,6 +30,7 @@ public class LibCopyActivity extends Activity {
     private final String cpuABI;
     AssetManager am;
     String aPrefix = "11/";
+    String bPrefix = "16/";
     InputStream in;
     FileOutputStream out;
     TextView tv;
@@ -56,11 +60,10 @@ public class LibCopyActivity extends Activity {
     protected void onStart(){
         super.onStart();
         boolean res = true;
+        String prefix = version(getApplicationContext())<420?aPrefix:bPrefix;
         try {
             String[] list = am.list(aPrefix+cpuABI);
-            int size = list.length;
-            for (int i = 0 ; i < size ; i++)
-                res &= filecopy(list[i]);
+            for (String aList : list) res &= filecopy(aList, prefix);
         } catch (IOException e) {
             res = false;
         }
@@ -71,7 +74,7 @@ public class LibCopyActivity extends Activity {
         }
     }
 
-    private boolean filecopy(String name){
+    private boolean filecopy(String name, String prefix){
         boolean ret = false;
         in = null;
         out = null;
@@ -80,9 +83,9 @@ public class LibCopyActivity extends Activity {
 
         try {
             File target = new File(targetFolder, name);
-            in = am.open(aPrefix+cpuABI+"/"+name);
+            in = am.open(prefix+cpuABI+"/"+name);
             out = new FileOutputStream(target);
-            if (DBG) Log.d(TAG, "in  " + aPrefix+cpuABI+"/"+name);
+            if (DBG) Log.d(TAG, "in  " + prefix+cpuABI+"/"+name);
             if (DBG) Log.d(TAG, "out " + target);
             while ((read = in.read(buff)) > 0) {
                 out.write(buff, 0, read);
@@ -108,4 +111,16 @@ public class LibCopyActivity extends Activity {
         }
         return ret;
     }
+
+    private int version(Context ctx) {
+        int version = -1;
+        for (String s : Arrays.asList("", "rk", "mtk", "qc", "aw", "free")) {
+            try {
+                PackageInfo pInfo = ctx.getPackageManager().getPackageInfo("com.archos.mediacenter.video" + s, 0);
+                return pInfo.versionCode % 10000;
+            } catch (NameNotFoundException ignored) {}
+        }
+        return version;
+    }
+
 }
