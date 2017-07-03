@@ -117,7 +117,7 @@ public class LibCopyActivity extends Activity {
         for (String s : Arrays.asList("", "rk", "mtk", "qc", "aw", "free")) {
             try {
                 PackageInfo pInfo = ctx.getPackageManager().getPackageInfo("com.archos.mediacenter.video" + s, 0);
-                return pInfo.versionCode % 10000;
+                return pInfo.versionCode % 100000;
             } catch (NameNotFoundException ignored) {}
         }
         return version;
