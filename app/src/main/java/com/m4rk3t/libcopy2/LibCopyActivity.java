@@ -29,8 +29,8 @@ public class LibCopyActivity extends Activity {
     private final File targetFolder = new File(Environment.getExternalStorageDirectory(),"/Android/data/"+targetName+"/files/plugins/11/");
     private final String cpuABI;
     AssetManager am;
-    String aPrefix = "11/";
-    String bPrefix = "16/";
+    private String Prefix[] = {"11/", "16/", "332/"};
+    private int Version[] = {0, 420, 24900};
     InputStream in;
     FileOutputStream out;
     TextView tv;
@@ -60,10 +60,17 @@ public class LibCopyActivity extends Activity {
     protected void onStart(){
         super.onStart();
         boolean res = true;
-        String prefix = version(getApplicationContext())<420?aPrefix:bPrefix;
+        int appversion = version(getApplicationContext());
+        if (DBG) Log.d(TAG, "appversion " + appversion);
+        String prefix = Prefix[0];
+        for (int i = 0; i < Prefix.length; i++) {
+            if (appversion > Version[i]) {
+                prefix = Prefix[i];
+            }
+        }
         try {
-            String[] list = am.list(aPrefix+cpuABI);
-            for (String aList : list) res &= filecopy(aList, prefix);
+            String[] list = am.list(prefix+cpuABI);
+            for (String List : list) res &= filecopy(List, prefix);
         } catch (IOException e) {
             res = false;
         }
