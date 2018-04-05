@@ -3,6 +3,7 @@ package com.m4rk3t.libcopy2;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ComponentName;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
@@ -77,7 +78,15 @@ public class LibCopyActivity extends Activity {
         pb.setVisibility(View.GONE);
         if (res) {
             tv.setText(R.string.installation_done);
-            sendBroadcast(new Intent("com.archos.mediacenter.NEW_PLUGINS"));
+            String pname = pName(getApplicationContext());
+            if (! pname.isEmpty()) {
+                if (DBG) Log.d(TAG, "send intent to " + pname);
+                final Intent intent=new Intent();
+                intent.setAction("com.archos.mediacenter.NEW_PLUGINS");
+                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                intent.setComponent(new ComponentName(pname,"com.archos.mediacenter.LibAvosReceiver"));
+                sendBroadcast(intent);
+            }
         }
     }
 
@@ -119,9 +128,20 @@ public class LibCopyActivity extends Activity {
         return ret;
     }
 
+    private String pName(Context ctx) {
+        String pname = "";
+        for (String s : Arrays.asList("", "rk", "mtk", "qc", "aw", "free", "community")) {
+            try {
+                PackageInfo pInfo = ctx.getPackageManager().getPackageInfo("com.archos.mediacenter.video" + s, 0);
+                return pInfo.packageName;
+            } catch (NameNotFoundException ignored) {}
+        }
+        return pname;
+    }
+
     private int version(Context ctx) {
         int version = -1;
-        for (String s : Arrays.asList("", "rk", "mtk", "qc", "aw", "free")) {
+        for (String s : Arrays.asList("", "rk", "mtk", "qc", "aw", "free", "community")) {
             try {
                 PackageInfo pInfo = ctx.getPackageManager().getPackageInfo("com.archos.mediacenter.video" + s, 0);
                 return pInfo.versionCode % 100000;
