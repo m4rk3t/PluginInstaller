@@ -58,6 +58,7 @@ public class LibCopyActivity extends Activity {
         targetFolder.mkdirs();
     }
 
+    @Override
     protected void onStart(){
         super.onStart();
         boolean res = true;
